@@ -1,0 +1,54 @@
+#!/bin/sh
+set -eu
+
+# Read-only VPS diagnostics. Configuration comes from the caller's environment;
+# no host, user, key, or secret is stored in this public repository.
+target=${VPS_SSH_TARGET:-}
+port=${VPS_SSH_PORT:-22}
+identity=${VPS_SSH_IDENTITY:-$HOME/.ssh/id_ed25519}
+
+if [ -z "$target" ]; then
+    echo "Set VPS_SSH_TARGET to an SSH alias or user@host." >&2
+    exit 2
+fi
+case "$target" in
+    *[!A-Za-z0-9_.:@%+-]*) echo "VPS_SSH_TARGET contains unsupported characters." >&2; exit 2 ;;
+esac
+case "$port" in
+    ''|*[!0-9]*) echo "VPS_SSH_PORT must be numeric." >&2; exit 2 ;;
+esac
+if [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+    echo "VPS_SSH_PORT must be between 1 and 65535." >&2
+    exit 2
+fi
+if [ ! -f "$identity" ]; then
+    echo "SSH identity file does not exist: $identity" >&2
+    exit 2
+fi
+
+ssh_readonly() {
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes \
+        -o ForwardAgent=no -p "$port" -i "$identity" "$target" "$@"
+}
+
+command_name=${1:-status}
+case "$command_name" in
+    status)
+        ssh_readonly 'printf "== identity ==\n"; hostname; id; printf "== system ==\n"; uname -a; printf "== resources ==\n"; df -hT /; free -h 2>/dev/null || true; printf "== docker ==\n"; systemctl is-active docker 2>/dev/null || true; docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"; docker compose ls 2>/dev/null || true'
+        ;;
+    pocketbase)
+        ssh_readonly 'printf "== PocketBase containers and mounts ==\n"; docker ps --format "{{.Names}}" | while IFS= read -r name; do case "$name" in pocketbase-*) docker inspect --format "{{.Name}} {{range .Mounts}}{{.Type}}:{{.Name}} -> {{.Destination}}; {{end}}" "$name";; esac; done'
+        ;;
+    logs)
+        container=${2:-}
+        tail_lines=${3:-100}
+        case "$container" in ''|*[!A-Za-z0-9_.-]*) echo "Usage: scripts/vps logs CONTAINER [LINES]" >&2; exit 2 ;; esac
+        case "$tail_lines" in ''|*[!0-9]*) echo "LINES must be numeric." >&2; exit 2 ;; esac
+        # Logs may contain sensitive application data; request them only when needed.
+        ssh_readonly "docker logs --tail $tail_lines --since 1h $container"
+        ;;
+    *)
+        echo "Usage: scripts/vps [status|pocketbase|logs CONTAINER [LINES]]" >&2
+        exit 2
+        ;;
+esac

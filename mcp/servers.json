@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "servers": {
+    "notion": {
+      "transport": "streamable-http",
+      "url": "https://mcp.notion.com/mcp",
+      "auth": { "type": "oauth" },
+      "purpose": "Search and manage the owner's Notion content within the requested scope.",
+      "documentation": "https://developers.notion.com/guides/mcp/get-started-with-mcp"
+    },
+    "coolify": {
+      "transport": "streamable-http",
+      "url_env": "COOLIFY_MCP_URL",
+      "auth": {
+        "type": "bearer",
+        "token_env": "COOLIFY_API_TOKEN",
+        "required_permissions": ["read"]
+      },
+      "purpose": "Inspect infrastructure, service health, and deployment diagnostics.",
+      "access_policy": "read-only",
+      "documentation": "https://coolify.io/docs/integrations/mcp"
+    },
+    "context7": {
+      "transport": "streamable-http",
+      "url": "https://mcp.context7.com/mcp/oauth",
+      "auth": { "type": "oauth" },
+      "purpose": "Look up current library documentation and examples.",
+      "documentation": "https://context7.com/docs/resources/all-clients"
+    },
+    "sentry": {
+      "transport": "streamable-http",
+      "url": "https://mcp.sentry.dev/mcp",
+      "auth": { "type": "oauth" },
+      "purpose": "Investigate errors and performance issues in the requested organization and project.",
+      "documentation": "https://mcp.sentry.dev/"
+    }
+  }
+}
