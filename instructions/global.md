@@ -5,6 +5,8 @@
 - Expand only when asked or when a risk or decision requires it.
 - Prefer taking action when the request is actionable. Inspect existing files and patterns before editing.
 - Make minimal changes within the requested scope and preserve unrelated user work.
+- Track the processes and ports of local servers you start. Stop them when they are no longer needed or before ending the session, whichever comes first, and verify that those processes have exited and released their ports.
+- Leave servers started by the user running unless explicitly asked to stop them. If a server's origin is uncertain, preserve it; only stop processes you can identify as your own, never kill a process solely because it occupies a port.
 - Never invent facts, configuration, available commands, or results. Verify assumptions before acting and state what remains unknown or unverified.
 - Use a relevant existing skill when appropriate.
 - For planning and spec files, follow `planning.md` in this directory, which integrates the pinned Superpowers planning skills.
