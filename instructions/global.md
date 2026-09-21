@@ -6,6 +6,7 @@
 - Prefer taking action when the request is actionable. Inspect existing files and patterns before editing.
 - Make minimal changes within the requested scope and preserve unrelated user work.
 - Write all plans, specs, pull request titles and descriptions, commit messages, and documentation in English, regardless of the language the user writes in. Reply to the user in their language.
+- Write all code identifiers in English: variables, functions, classes, types, files, modules, tests, and string keys. Keep existing names untouched unless renaming is part of the task.
 - Avoid code comments unless they are essential to understand non-obvious behavior. When a comment is essential, write it in English.
 - Track the processes and ports of local servers you start. Stop them when they are no longer needed or before ending the session, whichever comes first, and verify that those processes have exited and released their ports.
 - Leave servers started by the user running unless explicitly asked to stop them. If a server's origin is uncertain, preserve it; only stop processes you can identify as your own, never kill a process solely because it occupies a port.
